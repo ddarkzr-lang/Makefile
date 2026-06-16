@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Theos Environment
-      uses: upm-center/setup-theos@v1
+      uses: theo-com/setup-theos@master
       with:
         theos-sdks: '14.5'
 
@@ -23,7 +23,7 @@ jobs:
         make package FINALPACKAGE=1
 
     - name: Upload Resulting Dylib
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ColorRoadModMenu-Dylib
         path: .theos/obj/debug/ColorRoadModMenu.dylib

@@ -1,0 +1,29 @@
+name: Build iOS Dylib
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Theos Environment
+      uses: upm-center/setup-theos@v1
+      with:
+        theos-sdks: '14.5'
+
+    - name: Compile Tweak
+      run: |
+        make package FINALPACKAGE=1
+
+    - name: Upload Resulting Dylib
+      uses: actions/upload-artifact@v3
+      with:
+        name: ColorRoadModMenu-Dylib
+        path: .theos/obj/debug/ColorRoadModMenu.dylib

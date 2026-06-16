@@ -1,0 +1,60 @@
+#include <substrate.h>
+#import <UIKit/UIKit.h>
+
+// تعريف المتغيرات التي تتحكم بتفعيل الخيارات من القائمة
+bool godModeEnabled = false;
+bool unlockAllEnabled = false;
+bool speedHackEnabled = false;
+
+// ----------------------------------------
+// 1. خيار عدم الموت (God Mode)
+// ----------------------------------------
+bool (*old_Player_Die)(void* instance);
+bool new_Player_Die(void* instance) {
+    if (godModeEnabled) {
+        return false; // إذا كان الزر مفعلاً، امنع دالة الموت من التنفيذ
+    }
+    return old_Player_Die(instance); // إذا كان مغلقاً، اجعله يموت طبيعي
+}
+
+// ----------------------------------------
+// 2. خيار فتح كل شيء ونقود لا نهائية (Unlock All & Infinite Coins)
+// ----------------------------------------
+int (*old_GetCoins)(void* instance);
+int new_GetCoins(void* instance) {
+    if (unlockAllEnabled) {
+        return 999999; // إرجاع عدد عملات لا نهائي
+    }
+    return old_GetCoins(instance);
+}
+
+bool (*old_IsSkinUnlocked)(void* instance, int skinID);
+bool new_IsSkinUnlocked(void* instance, int skinID) {
+    if (unlockAllEnabled) {
+        return true; // جعل كل السكنات والأشكال مفتوحة دائماً
+    }
+    return old_IsSkinUnlocked(instance, skinID);
+}
+
+// ----------------------------------------
+// 3. الميزة الإضافية: التحكم بالسرعة (Speedhack)
+// ----------------------------------------
+float (*old_GetBallSpeed)(void* instance);
+float new_GetBallSpeed(void* instance) {
+    if (speedHackEnabled) {
+        return 2.5f; // زيادة سرعة الكرة بمقدار الضعف ونصف (أو إبطائها حسب رغبتك)
+    }
+    return old_GetBallSpeed(instance);
+}
+
+// ----------------------------------------
+// دالة الحقن عند تشغيل اللعبة
+// ----------------------------------------
+__attribute__((constructor))
+static void initialize_colorroad_hack() {
+    // العناوين التخيلية المستخرجة بعد فك باينري اللعبة
+    MSHookFunction((void*)0x1001A2B3C, (void*)&new_Player_Die, (void**)&old_Player_Die);
+    MSHookFunction((void*)0x1002B3C4D, (void*)&new_GetCoins, (void**)&old_GetCoins);
+    MSHookFunction((void*)0x1003C4D5E, (void*)&new_IsSkinUnlocked, (void**)&old_IsSkinUnlocked);
+    MSHookFunction((void*)0x1004D5E6F, (void*)&new_GetBallSpeed, (void**)&old_GetBallSpeed);
+}
